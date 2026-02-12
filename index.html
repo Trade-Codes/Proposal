@@ -16,10 +16,10 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%);
             font-family: 'Quicksand', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        #main-content, #celebration {
+        #main-content, #celebration, #gift-game {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -33,14 +33,14 @@
             font-family: 'Pacifico', cursive;
             color: #d63384;
             font-size: clamp(1.8rem, 6vw, 3rem);
-            margin: 0 0 30px 0;
+            margin: 0 0 20px 0;
             text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
         }
 
         .img-container {
             width: 100%;
-            max-width: 350px;
-            margin-bottom: 40px;
+            max-width: 320px;
+            margin-bottom: 20px;
         }
 
         .celebration-img {
@@ -63,21 +63,20 @@
 
         button {
             padding: 15px 35px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
             font-family: 'Quicksand', sans-serif;
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
 
-        #yesBtn {
+        #yesBtn, .surprise-btn {
             background-color: #ff4d6d;
             color: white;
             animation: pulse 1.5s infinite;
-            z-index: 1;
         }
 
         #noBtn {
@@ -86,26 +85,54 @@
             z-index: 1000;
         }
 
+        /* Gift Game Styles */
+        #gift-game { display: none; }
+        .gift-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .gift-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px dashed #ff4d6d;
+            width: 130px;
+            position: relative;
+        }
+
+        .gift-box:hover {
+            transform: translateY(-15px);
+            background: #fff;
+            box-shadow: 0 15px 30px rgba(214, 51, 132, 0.2);
+        }
+
+        .gift-icon { font-size: 3.5rem; display: block; margin-bottom: 10px; }
+        .box-label { font-weight: bold; color: #d63384; }
+
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
 
-        #celebration {
-            display: none;
-        }
+        #celebration { display: none; }
     </style>
 </head>
 <body>
 
+    <audio id="proposalMusic" src="DDLJ.mpeg" preload="auto" loop></audio>
+
     <div id="main-content">
         <h1>Hi, Pallu, Will you be my Valentine? ❤️</h1>
-        
         <div class="img-container">
             <img class="celebration-img" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM25yNnMyZHZ5bmk1dTZ3aTNrc3c4eGVvdnNlbGd6YWU2NHZ3MTI5cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2SpYryWKODJq0isM/giphy.gif" alt="Puppy Love">
         </div>
-
         <div class="btn-container">
             <button id="yesBtn" onclick="sayYes()">🥰 YES 🥰</button>
             <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">😩 NO 😩</button>
@@ -117,44 +144,91 @@
         <div class="img-container">
             <img class="celebration-img" src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjJuZjJ6Yzl4eTQ4NnNvNnFmbWNwZmdrOGd4Ym9qNDlrMWQ5M3AweiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kxUc3bdlKbe8v2CQNc/giphy.gif" alt="Happy Dance">
         </div>
+        <button class="surprise-btn" onclick="showGame()">Click for your Surprise Challenge! ✨</button>
+    </div>
+
+    <div id="gift-game">
+        <h1>Unlock Your Gifts 🔐</h1>
+        <p>Solve the riddles to see what I have planned for you!</p>
+        <div class="gift-container">
+            <div class="gift-box" onclick="askRiddle(1)">
+                <span class="gift-icon">🎁</span>
+                <span class="box-label">Box One</span>
+            </div>
+            <div class="gift-box" onclick="askRiddle(2)">
+                <span class="gift-icon">🎁</span>
+                <span class="box-label">Box Two</span>
+            </div>
+            <div class="gift-box" onclick="askRiddle(3)">
+                <span class="gift-icon">🎁</span>
+                <span class="box-label">Box Three</span>
+            </div>
+        </div>
     </div>
 
     <script>
         function moveButton() {
             const noBtn = document.getElementById('noBtn');
-            
-            // Switch to absolute positioning only when interaction starts
             noBtn.style.position = 'fixed';
-            
             const padding = 50;
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-
-            // Ensure the button stays within visible bounds
-            const randomX = Math.random() * (screenWidth - noBtn.offsetWidth - (padding * 2)) + padding;
-            const randomY = Math.random() * (screenHeight - noBtn.offsetHeight - (padding * 2)) + padding;
-
+            const randomX = Math.random() * (window.innerWidth - noBtn.offsetWidth - (padding * 2)) + padding;
+            const randomY = Math.random() * (window.innerHeight - noBtn.offsetHeight - (padding * 2)) + padding;
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
         function sayYes() {
+            document.getElementById('proposalMusic').play().catch(e => console.log("Audio play blocked until click."));
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('celebration').style.display = 'flex';
-            
-            const duration = 15 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+            launchConfetti();
+        }
 
+        function showGame() {
+            document.getElementById('celebration').style.display = 'none';
+            document.getElementById('gift-game').style.display = 'flex';
+        }
+
+        function askRiddle(boxNumber) {
+            let riddle, answer, gift;
+
+            if (boxNumber === 1) {
+                riddle = "I have hands but no arms, and a face but no eyes. I tell you the truth, but I never speak. What am I?";
+                answer = "watch";
+                gift = "A Beautiful New Watch! ⌚✨";
+            } else if (boxNumber === 2) {
+                riddle = "I have two bridges but no water. I help you see the world's beauty, or hide your eyes from the sun. What am I?";
+                answer = "sunglass"; // Accepts sunglasses or eyewear via logic below
+                gift = "Trendy New Eyewear/Sunglasses! 🕶️💖";
+            } else {
+                riddle = "I am a meeting of two hearts, usually involving candles and a menu, but no work allowed. What am I?";
+                answer = "dinner date";
+                gift = "A Romantic Candlelight Dinner Date! 🕯️🍝";
+            }
+
+            let userResponse = prompt(riddle);
+            
+            if (userResponse) {
+                let cleanResponse = userResponse.toLowerCase().trim();
+                // Check if the answer matches keywords
+                if (cleanResponse.includes("watch") && boxNumber === 1 || 
+                    (cleanResponse.includes("glass") || cleanResponse.includes("eyewear")) && boxNumber === 2 ||
+                    (cleanResponse.includes("dinner") || cleanResponse.includes("date")) && boxNumber === 3) {
+                    
+                    alert("CORRECT! 🎉\n\nYour gift: " + gift + "\n\nTell me the answer in person to claim it! 😉");
+                } else {
+                    alert("Ooh, so close! Try again, Pallu! ❤️");
+                }
+            }
+        }
+
+        function launchConfetti() {
+            const duration = 10 * 1000;
+            const animationEnd = Date.now() + duration;
             const interval = setInterval(function() {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
-
-                const particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { 
-                    particleCount, 
-                    origin: { x: Math.random(), y: Math.random() - 0.2 } 
-                }));
+                confetti({ particleCount: 40, spread: 360, origin: { x: Math.random(), y: Math.random() - 0.2 } });
             }, 250);
         }
     </script>
